@@ -23,11 +23,19 @@ public class ParsedXYPoint extends XYPoint implements AbstractPointGeometryField
         // normalization is not required for xy_point
     }
 
+    /**
+     * To set x and y values of XYPoint {@link XYPoint}
+     * @param x x coordinate
+     * @param y y coordinate
+     */
     @Override
     public void resetCoords(double x, double y) {
         this.reset(x, y);
     }
 
+    /**
+     * @return returns geometry of type point
+     */
     @Override
     public Point asGeometry() {
         return new Point(getX(), getY());

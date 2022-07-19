@@ -7,19 +7,24 @@ package org.opensearch.geospatial.index.mapper.xypoint;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * Represents a point in a 2-dimensional planar coordinate system with no range limitations
  */
 @AllArgsConstructor
+@Getter
+@NoArgsConstructor
 public class XYPoint {
-    @Getter
     private double x;
-    @Getter
     private double y;
 
-    public XYPoint() {}
-
+    /**
+     * To set x and y values
+     * @param x x coordinate value
+     * @param y y coordinate value
+     * @return initialized XYPoint
+     */
     public XYPoint reset(double x, double y) {
         this.x = x;
         this.y = y;
