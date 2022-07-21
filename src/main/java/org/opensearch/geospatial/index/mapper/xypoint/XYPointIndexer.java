@@ -5,7 +5,6 @@
 
 package org.opensearch.geospatial.index.mapper.xypoint;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -51,8 +50,8 @@ public class XYPointIndexer implements AbstractGeometryFieldMapper.Indexer<List<
      */
     @Override
     public Class<List<? extends XYPoint>> processedClass() {
-        List<XYPoint> obj = new ArrayList<>();
-        return (Class<List<? extends XYPoint>>) obj.getClass();
+        Object listToObjectClass = List.class;
+        return (Class<List<? extends XYPoint>>) listToObjectClass.getClass();
     }
 
     /**

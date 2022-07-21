@@ -30,7 +30,7 @@ public class ParsedXYPoint extends XYPoint implements AbstractPointGeometryField
      */
     @Override
     public void resetCoords(double x, double y) {
-        this.reset(x, y);
+        this.reset(y, x);
     }
 
     /**
