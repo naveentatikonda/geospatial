@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.opensearch.OpenSearchParseException;
-import org.opensearch.common.geo.GeoPoint;
 import org.opensearch.common.xcontent.LoggingDeprecationHandler;
 import org.opensearch.common.xcontent.NamedXContentRegistry;
 import org.opensearch.common.xcontent.XContentParser;
@@ -22,9 +21,9 @@ import org.opensearch.common.xcontent.support.MapXContentParser;
  * @author Naveen Tatikonda
  */
 public class XYPointParser {
-    public static final String X = "x";
-    public static final String Y = "y";
-    public static final String NULL_VALUE_PARAMETER = "null_value";
+    private static final String X_PARAMETER = "x";
+    private static final String Y_PARAMETER = "y";
+    private static final String NULL_VALUE_PARAMETER = "null_value";
 
     /**
      * Parses the value and set XYPoint which was represented as an object.
@@ -74,7 +73,6 @@ public class XYPointParser {
         OpenSearchParseException {
         double x = Double.NaN;
         double y = Double.NaN;
-        NumberFormatException numberFormatException = null;
 
         if (parser.currentToken() == XContentParser.Token.START_OBJECT) {
             try (XContentSubParser subParser = new XContentSubParser(parser)) {
@@ -83,49 +81,46 @@ public class XYPointParser {
                         throw new OpenSearchParseException("token [{}] not allowed", subParser.currentToken());
                     }
                     String field = subParser.currentName();
-                    if (!(X.equals(field) || Y.equals(field))) {
-                        throw new OpenSearchParseException("field must be either [{}] or [{}]", X, Y);
+                    if (!(X_PARAMETER.equals(field) || Y_PARAMETER.equals(field))) {
+                        throw new OpenSearchParseException("field must be either [{}] or [{}]", X_PARAMETER, Y_PARAMETER);
                     }
-                    if (X.equals(field)) {
+                    if (X_PARAMETER.equals(field)) {
                         subParser.nextToken();
                         switch (subParser.currentToken()) {
                             case VALUE_NUMBER:
                             case VALUE_STRING:
                                 try {
                                     x = subParser.doubleValue(true);
-                                } catch (NumberFormatException e) {
-                                    numberFormatException = e;
+                                } catch (NumberFormatException numberFormatException) {
+                                    throw new OpenSearchParseException("[x] must be valid double value", numberFormatException);
                                 }
                                 break;
                             default:
-                                throw new OpenSearchParseException("x must be a number");
+                                throw new OpenSearchParseException("[x] must be a number");
                         }
                     }
-                    if (Y.equals(field)) {
+                    if (Y_PARAMETER.equals(field)) {
                         subParser.nextToken();
                         switch (subParser.currentToken()) {
                             case VALUE_NUMBER:
                             case VALUE_STRING:
                                 try {
                                     y = subParser.doubleValue(true);
-                                } catch (NumberFormatException e) {
-                                    numberFormatException = e;
+                                } catch (NumberFormatException numberFormatException) {
+                                    throw new OpenSearchParseException("[y] must be valid double value", numberFormatException);
                                 }
                                 break;
                             default:
-                                throw new OpenSearchParseException("y must be a number");
+                                throw new OpenSearchParseException("[y] must be a number");
                         }
                     }
                 }
             }
-            if (numberFormatException != null) {
-                throw new OpenSearchParseException("[{}] and [{}] must be valid double values", numberFormatException, X, Y);
-            }
             if (Double.isNaN(x)) {
-                throw new OpenSearchParseException("field [{}] missing", X);
+                throw new OpenSearchParseException("field [{}] missing", X_PARAMETER);
             }
             if (Double.isNaN(y)) {
-                throw new OpenSearchParseException("field [{}] missing", Y);
+                throw new OpenSearchParseException("field [{}] missing", Y_PARAMETER);
             }
             return point.reset(x, y);
         }
@@ -138,7 +133,7 @@ public class XYPointParser {
             String val = parser.text();
             return point.resetFromString(val, ignoreZValue);
         }
-        throw new OpenSearchParseException("xy_point expected");
+        throw new OpenSearchParseException("Expected xy_point. But, the provided mapping is not of type xy_point");
     }
 
     /**
@@ -152,7 +147,7 @@ public class XYPointParser {
      * @return {@link XYPoint} after setting the x and y coordinates parsed from the parse
      * @throws IOException
      */
-    public static XYPoint parseXYPointArray(XContentParser subParser, XYPoint point, final boolean ignoreZValue, double x, double y)
+    private static XYPoint parseXYPointArray(XContentParser subParser, XYPoint point, final boolean ignoreZValue, double x, double y)
         throws IOException {
         int element = 0;
         while (subParser.nextToken() != XContentParser.Token.END_ARRAY) {
@@ -165,7 +160,7 @@ public class XYPointParser {
             } else if (element == 2) {
                 x = subParser.doubleValue();
             } else if (element == 3) {
-                GeoPoint.assertZValue(ignoreZValue, subParser.doubleValue());
+                XYPoint.assertZValue(ignoreZValue, subParser.doubleValue());
             } else {
                 throw new OpenSearchParseException("[xy_point] field type does not accept more than 3 dimensions");
             }

@@ -32,7 +32,7 @@ public class XYPointParsingTests extends OpenSearchTestCase {
     public void testResetFromWKTInvalid() {
         XYPoint point = new XYPoint();
         Exception e = expectThrows(OpenSearchParseException.class, () -> point.resetFromString("NOT A POINT(1 2)", randomBoolean()));
-        assertEquals("Validation failed for Invalid WKT", "Invalid WKT format", e.getMessage());
+        assertEquals("Validation failed for Invalid WKT", "Invalid WKT format, [NOT A POINT(1 2)]", e.getMessage());
 
         Exception e2 = expectThrows(OpenSearchParseException.class, () -> point.resetFromString("MULTIPOINT(1 2, 3 4)", randomBoolean()));
         assertEquals(
@@ -58,10 +58,10 @@ public class XYPointParsingTests extends OpenSearchTestCase {
         );
 
         Exception e3 = expectThrows(OpenSearchParseException.class, () -> point.resetFromString("abcd, 50.6", randomBoolean()));
-        assertEquals("Validation failed even if x is not a number", "x must be a number", e3.getMessage());
+        assertEquals("Validation failed even if x is not a number", "[x] must be a number", e3.getMessage());
 
         Exception e4 = expectThrows(OpenSearchParseException.class, () -> point.resetFromString("50.6, abcd", randomBoolean()));
-        assertEquals("Validation failed even if y is not a number", "y must be a number", e4.getMessage());
+        assertEquals("Validation failed even if y is not a number", "[y] must be a number", e4.getMessage());
     }
 
     public void testXYPointParsing() throws IOException {
@@ -108,7 +108,7 @@ public class XYPointParsingTests extends OpenSearchTestCase {
             OpenSearchParseException.class,
             () -> XYPointParser.parseXYPoint(parser, new XYPoint(), randomBoolean())
         );
-        assertEquals("Validation failed for invalid x and y values", "[x] and [y] must be valid double values", e.getMessage());
+        assertEquals("Validation failed for invalid x and y values", "[y] must be valid double value", e.getMessage());
 
         // Skip the 'y' field and y coordinate
         XContentBuilder content1 = JsonXContent.contentBuilder();
