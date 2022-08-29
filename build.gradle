@@ -250,8 +250,8 @@ spotless {
 jacocoTestReport {
     dependsOn integTest, test, yamlRestTest
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.required = true
+        html.required = true
     }
 }
 
